@@ -20,13 +20,20 @@ Enhanced reimplementation of Claude Code's `/insights` command with raised limit
 
 ### insights_sync.sh
 - Rsyncs `.jsonl` session files from configured remote hosts to local `~/.claude/projects/`
-- Remote hosts configured in `REMOTES` array at top of file
-- Uses `--ignore-existing` to avoid re-transferring
+- Remote hosts configured in `REMOTES` array at top of file — edit these for your environment
+- Uses `--ignore-existing` to avoid re-transferring already-synced sessions
+- Requires SSH key-based auth (uses `BatchMode=yes`) and `rsync` on both ends
+- Skips unreachable hosts gracefully (5-second connect timeout)
+- Supports `--dry-run` to preview what would be synced without transferring
+- Warns if >50 new sessions are synced (since the original `/insights` has a per-run cap)
 
 ### insights_diagnostic.sh
-- Audits `~/.claude/projects/` and facet cache to show what data is available
-- Cross-platform (GNU/BSD coreutils)
-- No side effects — read-only
+- Read-only audit of `~/.claude/projects/` and the facet cache — no side effects
+- Cross-platform: handles GNU coreutils (Linux) and BSD coreutils (macOS) via portable `stat`/`find` helpers
+- Reports per-project: total session files, agent sub-sessions, regular sessions, tiny files (<1KB likely excluded), date ranges
+- Shows facet cache status: cached count, size on disk, uncached sessions needing API processing
+- Checks for existing HTML report and parses its metadata (date, size, subtitle)
+- Explains the path-hashing scheme: same absolute project path on different machines produces the same hash, so synced sessions merge correctly
 
 ## Running
 
